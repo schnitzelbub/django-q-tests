@@ -1,6 +1,8 @@
 import unittest
 import logging
 import django_q
+from nose_parameterized import parameterized, param
+from djq.tests.nose_parameterized_helper import custom_name_func, custom_name_func_param_num
 
 logger = logging.getLogger(__name__)
 
@@ -57,18 +59,27 @@ class TestFetch(unittest.TestCase):
         assert t3.success is True
         assert t3.id == tid3
 
-    def test_fetch_1(self):
-        self.fetch_and_assert(external=True, cached=True)
+    @parameterized.expand([param(external=True, cached=True),
+                           param(external=False, cached=True),
+                           param(external=False, cached=False),
+                           param(external=True, cached=False)],
+                          testcase_func_name=custom_name_func)
+    def test_fetch_many(self, external, cached):
+        self.fetch_and_assert(external=external, cached=cached)
         return
 
-    def test_fetch_2(self):
-        self.fetch_and_assert(external=False, cached=True)
-        return
-
-    def test_fetch_3(self):
-        self.fetch_and_assert(external=False, cached=False)
-        return
-
-    def test_fetch_4(self):
-        self.fetch_and_assert(external=True, cached=False)
-        return
+    @parameterized.expand([param(cached=True),
+                           param(cached=False),
+                           param(cached=True),
+                           param(cached=False),
+                           param(cached=True)],
+                          testcase_func_name=custom_name_func_param_num)
+    def test_fetch_one(self, cached):
+        """
+        This test offloads and fetches only one task per test run.
+        :param cached: defines whether the cache should be used.
+        :return: None
+        """
+        tid = offload_task(sleep_time=3, ext_process=False, cached=cached)
+        task = django_q.fetch(tid, wait=WAIT_TIME, cached=cached)
+        assert task is not None
