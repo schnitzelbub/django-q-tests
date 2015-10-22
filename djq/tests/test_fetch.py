@@ -45,17 +45,17 @@ class TestFetch(unittest.TestCase):
         t1 = django_q.fetch(tid1, wait=WAIT_TIME, cached=cached)
         assert t1 is not None
         assert t1.success is True
-        assert t1.id is tid1
+        assert t1.id == tid1
 
         t2 = django_q.fetch(tid2, wait=WAIT_TIME, cached=cached)
         assert t2 is not None
         assert t2.success is True
-        assert t2.id is tid2
+        assert t2.id == tid2
 
         t3 = django_q.fetch(tid3, wait=WAIT_TIME, cached=cached)
         assert t3 is not None
         assert t3.success is True
-        assert t3.id is tid3
+        assert t3.id == tid3
 
     def test_fetch_1(self):
         self.fetch_and_assert(external=True, cached=True)
