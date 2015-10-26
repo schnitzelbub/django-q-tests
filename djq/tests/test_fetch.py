@@ -16,6 +16,12 @@ q_opts = {
 
 
 def offload_task(sleep_time: int = 10, ext_process: bool = True, cached: bool = True) -> str:
+    q_opts = {
+        'hook': 'print',
+        "cached": 60 * 10,  # 10 minutes cache timeout
+        "timeout": 60,  # default timeout for worker processes
+    }
+
     if not cached:
         q_opts["cached"] = False
 
@@ -23,7 +29,7 @@ def offload_task(sleep_time: int = 10, ext_process: bool = True, cached: bool = 
         "djq.work.do_work",
         st=sleep_time,
         external=ext_process,
-        q_options=q_opts)
+        q_options=q_opts.copy())  # the q_opts dictionary is manipulated by async(), thus we need a copy here
 
     return tid
 
